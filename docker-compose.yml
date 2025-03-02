@@ -1,0 +1,23 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    image: person-management/web:latest
+    command: sh -c "python manage.py migrate && python manage.py create_person && python manage.py runserver --insecure 0.0.0.0:8000"  # Run migrate, create_person, then runserver
+    volumes:
+      - .:/app  # Mount the current directory into the container
+    ports:
+      - "8000:8000"  # Map port 8000 of the container to port 8000 on the host
+    environment:
+      - PYTHONUNBUFFERED=1  # Ensures logs are shown immediately in the terminal
+    depends_on:
+      - db
+
+  db:
+    image: nouchka/sqlite3  # SQLite Docker image for file-based database
+    volumes:
+      - sqlite_db:/app/db  # Store the SQLite database in a volume
+
+volumes:
+  sqlite_db:  # Persistent volume for SQLite database to persist data
