@@ -1,6 +1,8 @@
 from django.db.models import Q
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated
+
 from person.models import Person
 from person.pagination import PersonPagination, paginate
 from person.permissions import IsAdmin, IsAdminOrGuest
@@ -103,7 +105,7 @@ class LogoutAPIView(GenericAPIView):
             Logs out the authenticated person and clears the session.
     """
 
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsAuthenticated]
     allowed_methods = ["post"]  # Only POST method is allowed
 
     def post(self, request):
@@ -174,9 +176,9 @@ class PersonViewSet(viewsets.ModelViewSet):
 
         # Apply filters if provided
         if first_name:
-            filter_people_query &= Q(first_name__icontains=first_name)
+            filter_people_query |= Q(first_name__icontains=first_name)
         if last_name:
-            filter_people_query &= Q(last_name__icontains=last_name)
+            filter_people_query |= Q(last_name__icontains=last_name)
         if age:
             filter_people_query |= Q(age=age)
 
