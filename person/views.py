@@ -140,6 +140,17 @@ class PersonViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAdmin]
     pagination_class = PersonPagination
 
+    def perform_update(self, serializer):
+        """
+        Ensure password is hashed when updating a person.
+        """
+        instance = serializer.save()  # Save the object first
+
+        if 'password' in self.request.data:
+            # Hash the password
+            instance.set_password(self.request.data['password'])
+            instance.save()
+
     @paginate(exclude_fields=["username"])
     @action(
         detail=False,
